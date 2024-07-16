@@ -23,7 +23,7 @@ final class CoreGraphicsView: UIView {
     override func draw(_ rect: CGRect) {
         super.draw(rect)
         guard let context = UIGraphicsGetCurrentContext() else { return }
-        
+
         for keypoint in keypoints {
             context.beginPath()
             // MARK: - Improvement: modify Transformation value on the fly (e.g. for pinch gesture, screen rotate)
@@ -33,9 +33,6 @@ final class CoreGraphicsView: UIView {
                                              rect.size.height - 20,
                                              rect.size.width / 2,
                                              rect.size.height / 2)
-            let scaleTransform = CGAffineTransformScale(tranform,
-                                                        rect.size.height,
-                                                        rect.size.height)
             let point = CGPointApplyAffineTransform(keypoint.point, tranform)
 //            context.setStrokeColor(UIColor.blue.cgColor)
 //            context.setLineWidth(2.0)
