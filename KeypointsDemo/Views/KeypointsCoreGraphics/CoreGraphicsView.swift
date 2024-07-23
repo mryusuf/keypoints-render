@@ -24,7 +24,8 @@ final class CoreGraphicsView: UIView {
         super.draw(rect)
         guard let context = UIGraphicsGetCurrentContext() else { return }
 
-        for keypoint in keypoints {
+        let bezierPath = UIBezierPath()
+        for (index, keypoint) in keypoints.enumerated() {
             context.beginPath()
             // MARK: - Improvement: modify Transformation value on the fly (e.g. for pinch gesture, screen rotate)
             let tranform = CGAffineTransform(rect.size.height - 20,
@@ -34,14 +35,14 @@ final class CoreGraphicsView: UIView {
                                              rect.size.width / 2,
                                              rect.size.height / 2)
             let point = CGPointApplyAffineTransform(keypoint.point, tranform)
-//            context.setStrokeColor(UIColor.blue.cgColor)
-//            context.setLineWidth(2.0)
-//            context.setLineCap(.round)
-//            context.move(to: point)
-//            context.addLine(to: CGPoint(x: point.x + 2, y: point.y - 2))
-//            context.strokePath()
-            context.setFillColor(UIColor.systemBrown.cgColor)
-            context.fill(CGRect(x: point.x, y: point.y, width: 2, height: 2))
+            context.setStrokeColor(UIColor.blue.cgColor)
+            context.setLineWidth(4.0)
+            if index == 0 {
+                bezierPath.move(to: point)
+            } else {
+                bezierPath.addLine(to: point)
+            }
+            bezierPath.stroke()
         }
     }
 }

@@ -33,17 +33,20 @@ final class CoreGraphicsViewController: UIViewController {
             guard let self else { return }
             switch state {
             case .finished(let keypoints):
-                if let coreGraphicsView = self.coreGraphicsView {
-                    coreGraphicsView.removeFromSuperview()
+                DispatchQueue.main.async {
+                    if let coreGraphicsView = self.coreGraphicsView {
+                        coreGraphicsView.removeFromSuperview()
+                    }
+                    
+                    let coreGraphicsView = CoreGraphicsView(keypoints: keypoints)
+                    self.view.addSubview(coreGraphicsView)
+                    coreGraphicsView.frame = self.view.safeAreaLayoutGuide.layoutFrame
+                    coreGraphicsView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor).isActive = true
+                    coreGraphicsView.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor).isActive = true
+                    
+                    self.coreGraphicsView = coreGraphicsView
+                    self.view.bringSubviewToFront(self.segmentedControl)
                 }
-                
-                let coreGraphicsView = CoreGraphicsView(keypoints: keypoints)
-                self.view.addSubview(coreGraphicsView)
-                coreGraphicsView.frame = self.view.safeAreaLayoutGuide.layoutFrame
-                coreGraphicsView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor).isActive = true
-                coreGraphicsView.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor).isActive = true
-                
-                self.coreGraphicsView = coreGraphicsView
             default:
                 break
             }
@@ -62,15 +65,7 @@ extension CoreGraphicsViewController {
     }
     
     @objc func buttonSwitchValueChanged(_ sender: UISegmentedControl) {
-        if (sender.selectedSegmentIndex == 0) {
-            viewModel.fetchKeypoints(fileName: viewModel.fileNames[safe: 0] ?? "")
-        } else {
-            viewModel.fetchKeypoints(fileName: viewModel.fileNames[safe: 1] ?? "")
-        }
-        
-        self.view.bringSubviewToFront(segmentedControl)
+        viewModel.fetchKeypoints(fileName: viewModel.fileNames[safe: sender.selectedSegmentIndex] ?? "")
     }
-
-
 }
 
