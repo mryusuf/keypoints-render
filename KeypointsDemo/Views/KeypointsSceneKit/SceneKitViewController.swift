@@ -103,21 +103,7 @@ extension SceneKitViewController {
     }
     
     func makeLineNode(from points: [SCNVector3]) -> SCNNode {
-        var vertices: [SCNVector3] = []
-        var indices: [Int32] = []
-        
-        for point in points {
-            vertices.append(point)
-        }
-        for i in 0..<points.count - 1 {
-            indices.append(Int32(i))
-            indices.append(Int32(i + 1))
-        }
-        let vertexSource = SCNGeometrySource(vertices: vertices)
-        let element = SCNGeometryElement(indices: indices,
-                                         primitiveType: .line)
-        let geometry = SCNGeometry(sources: [vertexSource],
-                                    elements: [element])
+        let geometry = SCNGeometry.line(points: points, radius: 0.0025).0
         let material = SCNMaterial()
         material.diffuse.contents = UIColor.blue
         material.isDoubleSided = true
