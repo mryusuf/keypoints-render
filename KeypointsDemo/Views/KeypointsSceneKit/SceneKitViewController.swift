@@ -41,9 +41,12 @@ class SceneKitViewController: UIViewController {
             guard let self else { return }
             switch state {
             case .finished(let keypoints):
-                self.cleanScene()
-                keypoints.forEach { keypoint in
-                    self.spawn(position: keypoint.point)
+                DispatchQueue.main.async {
+                    self.cleanScene()
+                    let vertices = keypoints.map { $0.point }
+                    let lineNode = self.makeLineNode(from: vertices)
+                    self.view.bringSubviewToFront(self.segmentedControl)
+                    self.scnScene?.rootNode.addChildNode(lineNode)
                 }
             default:
                 break
@@ -98,6 +101,31 @@ extension SceneKitViewController {
             cameraNode?.position = SCNVector3(x: 0, y: 0, z: 2.5)
         }
     }
+    
+    func makeLineNode(from points: [SCNVector3]) -> SCNNode {
+        var vertices: [SCNVector3] = []
+        var indices: [Int32] = []
+        
+        for point in points {
+            vertices.append(point)
+        }
+        for i in 0..<points.count - 1 {
+            indices.append(Int32(i))
+            indices.append(Int32(i + 1))
+        }
+        let vertexSource = SCNGeometrySource(vertices: vertices)
+        let element = SCNGeometryElement(indices: indices,
+                                         primitiveType: .line)
+        let geometry = SCNGeometry(sources: [vertexSource],
+                                    elements: [element])
+        let material = SCNMaterial()
+        material.diffuse.contents = UIColor.blue
+        material.isDoubleSided = true
+        material.lightingModel = .constant
+        geometry.materials = [material]
+        
+        return SCNNode(geometry: geometry)
+    }
 }
 
 // MARK: - Setup SegmentedControl
@@ -108,13 +136,7 @@ extension SceneKitViewController {
     }
 
     @objc func buttonSwitchValueChanged(_ sender: UISegmentedControl) {
-        if (sender.selectedSegmentIndex == 0) {
-            viewModel.fetchKeypoints(fileName: viewModel.fileNames[safe: 0] ?? "")
-        } else {
-            viewModel.fetchKeypoints(fileName: viewModel.fileNames[safe: 1] ?? "")
-        }
-        
-        self.view.bringSubviewToFront(segmentedControl)
+        viewModel.fetchKeypoints(fileName: viewModel.fileNames[safe: sender.selectedSegmentIndex] ?? "")
     }
 
 }
